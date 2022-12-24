@@ -14,8 +14,8 @@ export default function ControlPanel ({ props, theme, updateCallback }) {
             // helperText: "Specify length of the plot"
         },
         {
-            id: 'plotLength.in',
-            value: metrics.plotLength.in,
+            id: 'plotLength.inc',
+            value: metrics.plotLength.inc,
             // helperText: "Specify length of the plot"
         }],
         [{
@@ -25,8 +25,8 @@ export default function ControlPanel ({ props, theme, updateCallback }) {
             // helperText: "Specify breadth of the plot"
         },
         {
-            id: "plotBreadth.in",
-            value: metrics.plotBreadth.in,
+            id: "plotBreadth.inc",
+            value: metrics.plotBreadth.inc,
             // helperText: "Specify breadth of the plot"
         }],
         [{
@@ -36,8 +36,8 @@ export default function ControlPanel ({ props, theme, updateCallback }) {
             // helperText: "Specify length of the plot"
         },
         {
-            id: "pWallTkn.in",
-            value: metrics.pWallTkn.in,
+            id: "pWallTkn.inc",
+            value: metrics.pWallTkn.inc,
             // helperText: "Specify length of the plot"
         }],
         [{
@@ -47,30 +47,34 @@ export default function ControlPanel ({ props, theme, updateCallback }) {
             // helperText: "Leave offsets (setback)"
         },
         {
-            id: "gap.in",
-            value: metrics.gap.in,
+            id: "gap.inc",
+            value: metrics.gap.inc,
             // helperText: "Leave offsets (setback)"
         }],
         [{
-            id: "roomLength.ft",
+            id: "builtupLength.ft",
             title: "Built-up Length",
-            value: metrics.roomLength.ft,
+            value: metrics.builtupLength.ft,
+            readOnly: true
             // helperText: "Specify length of the Builtup Area"
         },
         {
-            id: "roomLength.in",
-            value: metrics.roomLength.in,
+            id: "builtupLength.inc",
+            value: metrics.builtupLength.inc,
+            readOnly: true
             // helperText: "Specify length of the Builtup Area"
         }],
         [{
-            id: "roomBreadth.ft",
+            id: "builtupBreadth.ft",
             title: "Built-up breadth",
-            value: metrics.roomBreadth.ft,
+            value: metrics.builtupBreadth.ft,
+            readOnly: true
             // helperText: "Specify breadth of the Builtup Area"
         },
         {
-            id: "roomBreadth.in",
-            value: metrics.roomBreadth.in,
+            id: "builtupBreadth.inc",
+            value: metrics.builtupBreadth.inc,
+            readOnly: true
             // helperText: "Specify breadth of the Builtup Area"
         }],
         [{
@@ -80,22 +84,28 @@ export default function ControlPanel ({ props, theme, updateCallback }) {
             // helperText: "Specify Builtup wall thickness"
         },
         {
-            id: "bWallTkn.in", 
-            value: metrics.bWallTkn.in,
+            id: "bWallTkn.inc", 
+            value: metrics.bWallTkn.inc,
             // helperText: "Specify Builtup wall thickness"
         }],
     ]
 
-    const updateMeasurements = (event, id,) => {
+    const updateMeasurements = (event, id) => {
         const [metric, unit] = id.split('.')
         const unitUpdate = { [unit]: parseInt(event.target.value) }
         const metricUpdate = { ...metrics[metric], ...unitUpdate }
-        setMetrics({ ...metrics, [metric]: metricUpdate })
-        console.log('updateCallback', event, id)
-        console.log('data', metrics)
+        const temp = { ...metrics, [metric]: metricUpdate }
+
+        // Update builtup dimension
+        const builtUnitUpdate = { builtupBreadth: { ft: temp.plotBreadth.ft - 2*temp.gap.ft,
+                                                    inc: temp.plotBreadth.inc - 2*temp.gap.inc, },
+                                  builtupLength: { ft: temp.plotLength.ft - 2*temp.gap.ft,
+                                                        inc: temp.plotLength.inc - 2*temp.gap.inc, } }
+        setMetrics({ ...temp, ...builtUnitUpdate })
+        console.log('OKK', temp, metricUpdate)
         updateCallback(event, id, metrics)
         // const value = event.target.value
-        // if(id.includes('-in') && value >=12) {
+        // if(id.inccludes('-in') && value >=12) {
         //     const feetInp = document.getElementById(id.replace('-in', '-ft'))
         //     feetInp.
         // }
@@ -124,6 +134,7 @@ export default function ControlPanel ({ props, theme, updateCallback }) {
                         key={ftCtr.id}
                         type="number"
                         InputProps={{
+                            readOnly: ftCtr.readOnly,
                             style: { width: '4rem', padding: 0, fontSize: '0.85rem', marginRight: '5px'},
                             endAdornment: <InputAdornment position="start" style={{fontSize: '0.75rem'}}>ft</InputAdornment>,
                         }}
@@ -137,6 +148,7 @@ export default function ControlPanel ({ props, theme, updateCallback }) {
                         key={inCtr.id}
                         type="number"
                         InputProps={{
+                            readOnly: inCtr.readOnly,
                             style: { width: '4rem', padding: 0, fontSize: '0.85rem', marginRight: '5px'},
                             endAdornment: <InputAdornment position="start" style={{fontSize: '0.75rem'}}>in</InputAdornment>,
                         }}

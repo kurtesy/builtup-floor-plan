@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ColorPicker from 'material-ui-color-picker'
+// import ColorPicker from 'material-ui-color-picker'
 import { AppBar, Box, Toolbar, Typography, CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 
@@ -27,19 +27,19 @@ const ToolBar = ({ theme, updateColor }) => {
                 <Typography variant="span" component="div" sx={{  }}>
                   Plot wall color:
                 </Typography>
-                <ColorPicker
+                {/* <ColorPicker
                     name='plot-color'
                     value={pWallColor}
                     onChange={color => setPWallColor(color)}
-                />
+                /> */}
                 <Typography variant="span" component="div" sx={{  }}>
                   Builtup wall color:
                 </Typography>
-                <ColorPicker
+                {/* <ColorPicker
                     name='builtup-color'
                     value={bWallColor}
                     onChange={color => setBWallColor(color)}
-                />
+                /> */}
             </Box>
           </Toolbar>
         </AppBar>

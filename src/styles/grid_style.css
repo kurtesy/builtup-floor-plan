@@ -1,0 +1,29 @@
+.axis-grid line {
+    stroke: #def;
+    stroke-width: 0.1px;
+  }
+
+.tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: #000;
+    color: #fff;
+}
+
+.rect-side-length, .rect-side-breadth {
+    fill: black;
+    font-size: 12px;
+    background-color: white;
+    alignment-baseline: central;
+}
+
+.selected-room {
+    stroke-width: 2px;
+    stroke: #000000;
+    stroke-dasharray: 5,5;
+    opacity: 0.8;
+}
+
+.resize-circle {
+    cursor: se-resize;
+}

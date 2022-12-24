@@ -6,7 +6,7 @@ const unitConversion = (metricUnits) => {
     const result = {};
     Object.keys(metricUnits).map(key => {
         const value = metricUnits[key]
-        result[key] = Math.round((parseFloat(value.ft) + parseFloat(value.in/12)) * scale, 2)
+        result[key] = Math.round((parseFloat(value.ft) + parseFloat(value.inc/12)) * scale, 2)
     })
     return result;
 }
@@ -30,6 +30,9 @@ const zoomStage = (event, stageRef) => {
       stage.position(newPos);
       stage.batchDraw();
     }
+    return
   }
 
-export { unitConversion, zoomStage };
+const formatUnit = ({ ft, inc }) => `${ft}'${inc}"`
+
+export { unitConversion, zoomStage, formatUnit };
