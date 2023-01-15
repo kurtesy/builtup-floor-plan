@@ -17,6 +17,10 @@
     alignment-baseline: central;
 }
 
+.bg {
+    transform: none !important;
+}
+
 .selected-room {
     stroke-width: 2px;
     stroke: #000000;
@@ -26,4 +30,20 @@
 
 .resize-circle {
     cursor: se-resize;
+}
+
+g.circles circle:hover {
+cursor: move;
+}
+
+.resizing {
+fill: blue;
+}
+
+.moving {
+fill: green;
+}
+
+.bg {
+    opacity: 0.5;
 }

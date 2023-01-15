@@ -6,6 +6,7 @@ import * as d3 from 'd3';
 import * as d3s from 'd3-selection';
 import emoji from 'd3moji';
 import { formatUnit } from '../utils/common.js';
+import ResizeableRect from './resize_rect.js';
 
 import '../styles/grid_style.css'
 
@@ -121,16 +122,44 @@ var roomsLayout =
     // },
 ]
 
-const adjustRoomsLayout = (selectedRect) => {
+const adjustRoomsLayout1 = (selectedRect) => {
+    const newAreas = []
+    const noOfRect = 4
+    const attr = selectedRect._groups[0][0].attributes
+    const _id = attr.id.value
+    const curIndex = parseInt(_id.split('-')[1])
     
+    const newW = parseInt(attr.width.value)
+    const newH = parseInt(attr.height.value)
+
+    const oldDim = roomsLayout[curIndex]
+    const oldArea = oldDim.width * oldDim.height
+    const newArea = newW * newH
+    let newPercent = (oldDim.percent*newArea)/oldArea
+    const remain = oldDim.percent - newPercent
+
+    const buffer = remain / (noOfRect-1)
+
+    for(let index=0;index<noOfRect;index++) {
+        const temp = {
+            roomType: `${index}`,
+            wallThick: 4
+        }
+        if (index == curIndex) {
+            temp.percent = newPercent
+        }
+        newAreas.push(temp)
+    }
+    console.log('OLOLOLOLO', newAreas, oldDim, roomsLayout)
+    return newAreas
+}
+
+const adjustRoomsLayout2 = (selectedRect) => {
+
 }
 
 const Grid = ({ plotDim, builtupDim, scale, mainRef, config }) => {
     const ref = useRef()
-
-    const line = [[1, 0], [1, 2]];
-    const rectangle = [[0, 0], [0, 1], [1, 1], [1, 0]];
-    const ptLine = pointWithLine([0, 1], line); // [[0, 0], [1, 1]]
     let selectedRoom = null;
     let dragging = null;
 
@@ -138,83 +167,64 @@ const Grid = ({ plotDim, builtupDim, scale, mainRef, config }) => {
         // drawGrid()
     }
 
+    const boundRooms = (startX, startY, width, height, boundX, boundY) => {
+        const rightSide = startX + width;
+        const lowerSide = startY + height;
+        let newWidth = width
+        let newHeight = height
+        if(rightSide > boundX) {
+            newWidth = boundX - startX
+        }
+        if(lowerSide > boundY) {
+            newHeight = boundY - startY
+        }
+        return { newWidth, newHeight }
+    }
+
     const drawRooms = (svg, builtupStart, builtupBreadth, builtupLength, bWallTkn) => {
-        let curX = builtupStart.X;
-        let curY = builtupStart.Y;
+        const relationship = {
+            0: {
+                right: 1,
+                down: 2
+            },
+            1: {
+                left: 0,
+                down: 3
+            },
+            2: {
+                right: 3,
+                up: 0
+            },
+            3: {
+                left: 2,
+                up: 1
+            }
+        }
+        svg.selectAll(".room-rect").remove()
+        let curX = builtupStart.X+bWallTkn - 2;
+        let curY = builtupStart.Y+bWallTkn - 2;
+        const data = [{}]
         roomsLayout.map((room, i) => {
             const newDim = roomDimCalc(room.percent, builtupBreadth, builtupLength)
-            svg.append('rect')
-                .attr('id', `room-${i}`)
-                .attr('class', 'room-rect')
-                .attr('x', curX)
-                .attr('y', curY)
-                .attr('width', newDim.width)
-                .attr('height', newDim.height)
-                .attr('stroke', '#400000')
-                .attr('stroke-width', room.wallThick)
-                .attr('fill', roomColorSchema[i%4])
-                .style('opacity', 0.5)
-                .on('click', function (d, j) {
-                    // Find previously selected, unselect
-                    d3.select(".selected-room").classed("selected-room", false);
-                    svg.selectAll("circle").remove()
-
-                    // Select current item
-                    const cur = d3.select(this);
-                    cur.classed("selected-room", true);
-                     
-                    selectedRoom = `room-${i}`
-                    console.log(this, cur, d, j)
-
-                    const attr = this.attributes;
-                    svg.append('circle')
-                        .attr('class', 'resize-circle')
-                        .attr('cx', parseInt(attr.x.value) + parseInt(attr.width.value))
-                        .attr('cy', parseInt(attr.y.value) + parseInt(attr.height.value))
-                        .attr('r', 5)
-                        .attr('fill', 'blue')
-                        .on('mousedown', function(d,i){
-                            dragging = true
-                        })
-                        .on("mouseup", function(d, i){
-                            dragging = false
-                        })
-                        .on("mousemove", function(d, i){
-                                let coords = d3s.pointers(d)[0]
-                                const selectedRect = d3.select(`#${selectedRoom}`)
-                                const circle = d3.select(this)
-                                if(dragging === true) {
-                                    circle.attr('cx', parseInt(coords[0]))
-                                    circle.attr('cy', parseInt(coords[1]))
-
-                                    selectedRect.attr('width', parseInt(coords[0]) - parseInt(selectedRect._groups[0][0].attributes.x.value))
-                                    selectedRect.attr('height', parseInt(coords[1]) - parseInt(selectedRect._groups[0][0].attributes.y.value))
-                                    adjustRoomsLayout(selectedRect)
-                                }
-                            })
-                    }
-                )
-            
-            svg.append('text')
-                .text(room.roomType)
-                .attr('width', 30)
-                .attr('height', 30)
-                .attr('x', curX + newDim.width/2 - 30)
-                .attr('y', curY + newDim.height/2)
-            svg.append("svg:image")
-            .attr('x', curX + newDim.width/2 - 5)
-            .attr('y', curY + newDim.height - 31)
-            .attr('width', 30)
-            .attr('height', 34)
-            .attr("xlink:href", "door_icon.svg")
-            // .attr('transform', 'rotate(180 0 0)')
-            
-            curX = curX + newDim.width
-            if (builtupStart.X + builtupLength - 50 <= curX) {
-                curY = curY + newDim.height
-                curX = builtupStart.X + bWallTkn/2 + 1;
+            const boundDim = boundRooms(curX, curY, newDim.width, newDim.height,
+                                        builtupStart.X+builtupLength-bWallTkn, builtupStart.Y+builtupBreadth-bWallTkn)
+            roomsLayout[i].width = newDim.width
+            roomsLayout[i].height = newDim.height
+            data.push({
+                id: i,
+                x: curX,
+                y: curY,
+                width: newDim.width,
+                height: newDim.height,
+                color: roomColorSchema[i%4]
+            })
+            curX = curX + newDim.width - 4
+            if (builtupStart.X + builtupLength -50 <= curX) {
+                curY = curY + newDim.height - 4
+                curX = builtupStart.X + bWallTkn - 2;
             }
         })
+        ResizeableRect(data, svg)
     }
 
     const drawGrid = () => {
