@@ -4,7 +4,7 @@ import { pointWithLine } from 'geometric';
 import { createRoot } from 'react-dom/client'
 import * as d3 from 'd3';
 import * as d3s from 'd3-selection';
-import emoji from 'd3moji';
+import rectpack from '../algo/pack1.js'
 import { formatUnit } from '../utils/common.js';
 import ResizeableRect from './resize_rect.js';
 
@@ -61,6 +61,8 @@ const breakArea = (id='built-rect-inner', break_ratio=0.25) => {
         newAreas.push(temp)
     }
     roomsLayout = [ ...newAreas ]
+    console.log('TEST ALGO1', rectpack([{w: 280, h: 180},
+        {w: 280, h: 180}, {w: 280, h: 180}, {w: 280, h: 180}]))
 }
 
 var roomsLayout = 
